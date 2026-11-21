@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tic-Tac-Love // A Little Game For You</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --rose-glow: #fb7185;
+      --pink-glow: #f472b6;
+      --lavender-glow: #c084fc;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at 15% 15%, #2a1026 0%, #170c1f 45%, #0d0814 100%);
+      color: #fff1f2;
+      min-height: 100vh;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    .font-serif-romantic {
+      font-family: 'Playfair Display', serif;
+    }
+
+    /* Soft Floating Background Orbs */
+    .bg-orb {
+      position: fixed;
+      border-radius: 9999px;
+      filter: blur(95px);
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 0;
+      animation: drift 14s ease-in-out infinite alternate;
+    }
+
+    @keyframes drift {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(30px, -25px) scale(1.08); }
+    }
+
+    /* Floating Background Hearts */
+    .floating-heart {
+      position: fixed;
+      bottom: -40px;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      animation: floatUp linear forwards;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) rotate(0deg) scale(0.7);
+        opacity: 0;
+      }
+      15% {
+        opacity: 0.45;
+      }
+      85% {
+        opacity: 0.35;
+      }
+      100% {
+        transform: translateY(-110vh) rotate(25deg) scale(1.1);
+        opacity: 0;
+      }
+    }
+
+    /* Glassmorphism Cards */
+    .glass-card {
+      background: rgba(34, 17, 36, 0.62);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 228, 230, 0.14);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    /* Tic-Tac-Toe Grid Cells */
+    .board-cell {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(251, 113, 133, 0.22);
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.25);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .board-cell:hover:not(:disabled) {
+      background: rgba(251, 113, 133, 0.14);
+      border-color: rgba(251, 113, 133, 0.6);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 10px 24px -6px rgba(244, 63, 94, 0.35);
+    }
+
+    .board-cell:active:not(:disabled) {
+      transform: scale(0.96);
+    }
+
+    .board-cell.winning-cell {
+      background: linear-gradient(135deg, rgba(244, 63, 94, 0.35), rgba(192, 132, 252, 0.35));
+      border-color: #fda4af;
+      box-shadow: 0 0 25px rgba(251, 113, 133, 0.55);
+      animation: pulseWin 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulseWin {
+      from { transform: scale(1); }
+      to { transform: scale(1.04); }
+    }
+
+    /* Symbol Pop-In Animation */
+    @keyframes popSymbol {
+      0% { transform: scale(0.2) rotate(-18deg); opacity: 0; }
+      70% { transform: scale(1.12) rotate(4deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .symbol-enter {
+      animation: popSymbol 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* Romantic Gradient Button */
+    .btn-romantic {
+      background: linear-gradient(135deg, #f43f5e 0%, #ec4899 50%, #a855f7 100%);
+      box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.5);
+      transition: all 0.25s ease;
+    }
+
+    .btn-romantic:hover {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px -5px rgba(236, 72, 153, 0.65);
+    }
+
+    .btn-romantic:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    /* Modal Backdrop & Entrance */
+    @keyframes modalReveal {
+      0% { opacity: 0; transform: scale(0.88) translateY(20px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-animate {
+      animation: modalReveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Confetti Canvas */
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 60;
+    }
+
+    /* Passcode Gate Shake & Keypad Animations */
+    @keyframes shakeGate {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-10px); }
+      40% { transform: translateX(10px); }
+      60% { transform: translateX(-7px); }
+      80% { transform: translateX(7px); }
+    }
+
+    .shake-gate {
+      animation: shakeGate 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    .keypad-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(251, 113, 133, 0.25);
+      transition: all 0.16s ease;
+    }
+
+    .keypad-btn:hover {
+      background: rgba(251, 113, 133, 0.2);
+      border-color: rgba(251, 113, 133, 0.65);
+      transform: translateY(-1px);
+    }
+
+    .keypad-btn:active {
+      transform: scale(0.94);
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-between p-4 sm:p-6 relative">
+
+  <!-- Ambient Background Glows -->
+  <div class="bg-orb w-80 h-80 bg-rose-500 -top-16 -left-16"></div>
+  <div class="bg-orb w-96 h-96 bg-fuchsia-600 bottom-0 -right-20" style="animation-delay: -5s;"></div>
+  <div class="bg-orb w-72 h-72 bg-purple-500 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="animation-delay: -9s;"></div>
+
+  <!-- Confetti Overlay Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- ===================================================================== -->
+  <!-- ROMANTIC 4-DIGIT PASSCODE GATE (UNLOCKS WITH "1104")                  -->
+  <!-- ===================================================================== -->
+  <div id="passcode-gate" class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-[#120818]/90 backdrop-blur-2xl transition-opacity duration-500">
+    <div id="passcode-card" class="modal-animate glass-card rounded-3xl w-full max-w-sm p-6 sm:p-7 border border-rose-300/30 shadow-2xl text-center space-y-5">
+      <div class="space-y-1.5">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-400/35 text-[11px] font-semibold text-rose-200">
+          <span>💌 Private Invite</span>
+        </div>
+        <h2 class="font-serif-romantic text-2xl sm:text-3xl font-bold text-white">
+          A Little Secret Just For You 🔒
+        </h2>
+        <p class="text-xs sm:text-sm text-rose-200/85">
+          Enter the 4-digit secret code to unlock your surprise
+        </p>
+      </div>
+
+      <!-- 4-Dot Passcode Indicator -->
+      <div id="passcode-dots" class="flex items-center justify-center gap-3.5 py-1">
+        <span class="pass-dot w-4 h-4 rounded-full border-2 border-rose-300/50 bg-transparent transition-all duration-200"></span>
+        <span class="pass-dot w-4 h-4 rounded-full border-2 border-rose-300/50 bg-transparent transition-all duration-200"></span>
+        <span class="pass-dot w-4 h-4 rounded-full border-2 border-rose-300/50 bg-transparent transition-all duration-200"></span>
+        <span class="pass-dot w-4 h-4 rounded-full border-2 border-rose-300/50 bg-transparent transition-all duration-200"></span>
+      </div>
+
+      <!-- Hint / Error Feedback Message -->
+      <p id="passcode-feedback" class="min-h-[20px] text-xs font-medium text-rose-300/90">
+        Hint: A special 4-digit number ✨
+      </p>
+
+      <!-- Sleek 3x4 Numeric Keypad -->
+      <div class="grid grid-cols-3 gap-2.5 max-w-[250px] mx-auto pt-1">
+        <button type="button" data-digit="1" class="keypad-btn py-3.5 rounded-2xl text-lg font-bold text-white cursor-pointer">1</button>
+        <button type="button" data-digit="2" class="keypad-btn py-3.5 rounded-2xl text-lg font-bold text-white cursor-pointer">2</button>
+        <button type="button" data-digit="3" class="keypad-btn py-3.5 rounded-2xl text-lg font-bold text-white cursor-pointer">3</button>
+        <button type="button" data-digit="4" class="keypad-btn py-3.5 rounded-2xl text-lg font-bold text-white cursor-pointer">4</button>
+        <button type="button" data-digit="5" class="keypad-btn py-3.5 rounded-2xl text-lg font-bold text-white cursor-pointer">5</button>
+        <button type="button" data-digit="6" class="keypad-btn py-3.5 rounded-2xl text-lg font-bold text-white cursor-pointer">6</button>
+        <button type="button" data-digit="7" class="keypad-btn py-3.5 rounded-2xl text-lg font-bold text-white cursor-pointer">7</button>
+        <button type="button" data-digit="8" class="keypad-btn py-3.5 rounded-2xl text-lg font-bold text-white cursor-pointer">8</button>
+        <button type="button" data-digit="9" class="keypad-btn py-3.5 rounded-2xl text-lg font-bold text-white cursor-pointer">9</button>
+        <button type="button" id="btn-pass-clear" class="keypad-btn py-3.5 rounded-2xl text-xs font-semibold text-rose-200/80 cursor-pointer">Clear</button>
+        <button type="button" data-digit="0" class="keypad-btn py-3.5 rounded-2xl text-lg font-bold text-white cursor-pointer">0</button>
+        <button type="button" id="btn-pass-back" class="keypad-btn py-3.5 rounded-2xl text-base font-semibold text-rose-200 cursor-pointer" aria-label="Backspace">⌫</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Header Bar -->
+  <header class="relative z-10 w-full max-w-md flex items-center justify-between pt-1">
+    <div class="flex items-center gap-2">
+      <!-- QR Share Modal Trigger -->
+      <button id="btn-open-qr" class="px-3 py-1.5 rounded-full glass-card text-xs font-medium text-rose-200 hover:text-white hover:border-rose-400/50 transition cursor-pointer flex items-center gap-1" title="Generate QR Code to Share">
+        <span>📱 QR</span>
+      </button>
+
+      <!-- Theme Symbol Switcher -->
+      <button id="btn-symbol-toggle" class="px-3 py-1.5 rounded-full glass-card text-xs font-medium text-rose-200 hover:text-white hover:border-rose-400/50 transition cursor-pointer" title="Switch Player Token Style">
+        Token: <span id="token-preview" class="font-bold text-rose-300">♥ / ★</span>
+      </button>
+
+      <!-- Sound Toggle -->
+      <button id="btn-sound" class="p-2 rounded-full glass-card text-rose-200 hover:text-white hover:border-rose-400/50 transition cursor-pointer" aria-label="Toggle Sound">
+        <span id="sound-icon">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          </svg>
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Game Container -->
+  <main class="relative z-10 w-full max-w-md my-auto py-4 space-y-5">
+    <!-- Title & Playful Hook -->
+    <div class="text-center space-y-1.5">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/15 border border-rose-400/30 text-[11px] font-medium text-rose-200">
+        <span>✨ Special Challenge</span>
+        <span>•</span>
+        <span>Winner (or Loser!) Gets a Surprise</span>
+      </div>
+      <h1 class="font-serif-romantic text-3xl sm:text-4xl font-bold text-white tracking-tight">
+        Play a Quick Round With Me?
+      </h1>
+      <p class="text-xs sm:text-sm text-rose-200/80">
+        Beat me if you can... though either way, there's a reward waiting at the end.
+      </p>
+    </div>
+
+    <!-- Game Card -->
+    <section class="glass-card rounded-3xl p-5 sm:p-6 space-y-5">
+      <!-- Score & Turn Indicator Pill -->
+      <div class="flex items-center justify-between gap-2 text-xs">
+        <div id="badge-you" class="flex-1 py-2 px-3 rounded-2xl bg-rose-500/20 border border-rose-400/40 flex items-center justify-between transition-all">
+          <span class="font-semibold text-rose-100">You (<span id="label-you-sym">♥</span>)</span>
+          <span id="score-you" class="font-bold text-rose-300 text-sm">0</span>
+        </div>
+        <div id="badge-me" class="flex-1 py-2 px-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between transition-all">
+          <span class="font-semibold text-purple-200">Me (<span id="label-me-sym">★</span>)</span>
+          <span id="score-me" class="font-bold text-purple-300 text-sm">0</span>
+        </div>
+      </div>
+
+      <!-- Playful Banter Bubble -->
+      <div class="min-h-[44px] px-4 py-2.5 rounded-2xl bg-black/25 border border-rose-300/15 flex items-center justify-center text-center">
+        <p id="banter-text" class="text-xs sm:text-sm font-medium text-rose-100 transition-opacity duration-200">
+          Your move first, cutie! Pick any square ✨
+        </p>
+      </div>
+
+      <!-- 3x3 Tic-Tac-Toe Board -->
+      <div id="game-board" class="grid grid-cols-3 gap-3 aspect-square w-full max-w-[310px] mx-auto">
+        <!-- 9 Cells injected via JS -->
+      </div>
+
+      <!-- Bottom Controls -->
+      <div class="flex items-center justify-between pt-1">
+        <button id="btn-reset" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-rose-200 transition cursor-pointer">
+          ↻ Reset Board
+        </button>
+        <button id="btn-peek-reward" class="text-xs text-rose-300/75 hover:text-rose-200 underline underline-offset-4 transition cursor-pointer">
+          Wait, what's the reward?
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="relative z-10 text-center text-[11px] text-rose-300/50 pb-1">
+    Made especially for you ♥
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- CELEBRATORY REWARD MODAL (TRIGGERS ON WIN, LOSE, OR DRAW!)            -->
+  <!-- ===================================================================== -->
+  <div id="reward-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+    <div class="modal-animate glass-card rounded-3xl w-full max-w-md max-h-[92vh] overflow-y-auto p-6 sm:p-7 relative border border-rose-300/30 shadow-2xl">
+
+      <!-- Close / Play Again X -->
+      <button id="btn-close-modal" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 text-rose-200 flex items-center justify-center text-sm transition cursor-pointer" title="Play Another Round">
+        ✕
+      </button>
+
+      <!-- STEP 1: THE BIG REVEAL & DATE PICKER -->
+      <div id="modal-step-reveal" class="space-y-5 text-center">
+        <!-- Outcome Badge -->
+        <div class="space-y-2">
+          <span id="outcome-pill" class="inline-block px-3.5 py-1 rounded-full text-xs font-semibold tracking-wide uppercase bg-rose-500/25 text-rose-200 border border-rose-400/40">
+            🎉 You Won!
+          </span>
+          <p id="outcome-subtext" class="text-xs sm:text-sm text-rose-200/90 leading-relaxed">
+            You beat me fair and square! And as the champion...
+          </p>
+        </div>
+
+        <!-- Exact Reward Headline Box -->
+        <div class="p-5 rounded-2xl bg-gradient-to-br from-rose-500/25 via-pink-500/20 to-purple-500/25 border border-rose-300/40 shadow-inner space-y-1.5">
+          <div class="text-2xl">💌✨</div>
+          <h2 class="font-serif-romantic text-2xl sm:text-3xl font-bold text-white leading-snug">
+            Your reward is to go on a date with me! ❤️
+          </h2>
+          <p class="text-[11px] text-rose-200/80 italic">
+            (No refunds, no exchanges—only good vibes!)
+          </p>
+        </div>
+
+        <!-- Locked-In Date Plan Card -->
+        <div class="p-4 rounded-2xl bg-white/[0.06] border border-rose-300/30 shadow-inner space-y-1">
+          <div class="text-[10px] font-semibold uppercase tracking-widest text-rose-300/80">
+            The Official Plan
+          </div>
+          <div class="text-base sm:text-lg font-bold text-white">
+            We will go eat and Netflix and chill 🍜🎬❤️
+          </div>
+          <div class="text-[11px] text-rose-200/75">
+            Good food, cozy vibes, and zero stress!
+          </div>
+        </div>
+
+        <!-- Action Buttons: Accept Reward + Prominent Playful Dodging Trap Button -->
+        <div class="pt-2 space-y-3 relative">
+          <button id="btn-accept-reward" class="btn-romantic w-full py-3.5 px-6 rounded-2xl text-sm sm:text-base font-bold text-white tracking-wide cursor-pointer">
+            Accept Reward 💖
+          </button>
+
+          <div class="min-h-[54px] flex items-center justify-center relative">
+            <button id="btn-dodge-no" type="button" class="w-full py-3 px-6 rounded-2xl bg-rose-500/15 hover:bg-rose-500/25 border-2 border-rose-300/45 text-sm sm:text-base font-semibold text-rose-100 shadow-lg shadow-rose-950/40 transition-all duration-150 cursor-pointer">
+              No, I'm busy 🙈
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: GOLDEN DATE TICKET CONFIRMATION -->
+      <div id="modal-step-ticket" class="hidden space-y-5 text-center">
+        <div class="space-y-1">
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/35">
+            ✓ Reward Claimed!
+          </span>
+          <h3 class="font-serif-romantic text-2xl sm:text-3xl font-bold text-white">
+            It’s a Date! 🥰
+          </h3>
+          <p class="text-xs text-rose-200/80">
+            Screenshot or copy this pass and send it to me!
+          </p>
+        </div>
+
+        <!-- Golden Ticket Card -->
+        <div class="p-5 rounded-2xl bg-gradient-to-br from-amber-500/20 via-rose-500/20 to-purple-600/25 border border-amber-300/40 text-left space-y-3 relative overflow-hidden">
+          <div class="flex items-center justify-between border-b border-white/15 pb-2.5">
+            <span class="text-[11px] font-bold uppercase tracking-widest text-amber-200">
+              VIP DATE PASS ♥
+            </span>
+            <span id="ticket-result-tag" class="text-[11px] px-2 py-0.5 rounded-full bg-white/10 text-rose-100">
+              Official Winner
+            </span>
+          </div>
+
+          <div class="space-y-1">
+            <div class="text-[11px] text-rose-200/70">Reward Unlocked:</div>
+            <div class="font-serif-romantic text-lg font-bold text-white">
+              One Unforgettable Date With Me ❤️
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-1 text-xs">
+            <div class="p-2.5 rounded-xl bg-black/25">
+              <div class="text-[10px] text-rose-200/60">Confirmed Plan</div>
+              <div id="ticket-vibe" class="font-semibold text-rose-100 mt-0.5">Eat + Netflix & Chill 🍜🎬</div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-black/25">
+              <div class="text-[10px] text-rose-200/60">Cost</div>
+              <div class="font-semibold text-emerald-300 mt-0.5">100% On Me ✨</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <button id="btn-copy-ticket" class="btn-romantic flex-1 py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold text-white cursor-pointer">
+            📋 Copy Date Pass
+          </button>
+          <button id="btn-play-again-ticket" class="py-3 px-4 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs sm:text-sm font-medium text-rose-100 transition cursor-pointer">
+            ↻ Play Again
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Subtle Toast Message -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[70] pointer-events-none opacity-0 transition-all duration-300 translate-y-2">
+    <div class="px-4 py-2 rounded-full bg-rose-950/95 border border-rose-400/40 text-xs font-medium text-rose-100 shadow-xl">
+      Copied to clipboard! Send it to me 💌
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- QR CODE SHARE MODAL (LET HER SCAN STRAIGHT FROM YOUR SCREEN)          -->
+  <!-- ===================================================================== -->
+  <div id="qr-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="modal-animate glass-card rounded-3xl w-full max-w-sm p-6 relative border border-rose-300/30 shadow-2xl text-center space-y-4">
+      <button id="btn-close-qr" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 text-rose-200 flex items-center justify-center text-sm transition cursor-pointer" title="Close QR Modal">
+        ✕
+      </button>
+
+      <div class="space-y-1">
+        <span class="inline-block px-3 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-rose-500/20 text-rose-200 border border-rose-400/35">
+          📱 Scan to Play
+        </span>
+        <h3 class="font-serif-romantic text-2xl font-bold text-white">
+          GameForYou QR Code
+        </h3>
+        <p class="text-xs text-rose-200/80">
+          Paste your hosted or Share link below to generate a scannable QR code for her camera!
+        </p>
+      </div>
+
+      <!-- URL Input -->
+      <div class="space-y-2 text-left">
+        <label for="qr-url-input" class="text-[11px] font-medium text-rose-200/80 pl-1">Your Game Link:</label>
+        <input
+          id="qr-url-input"
+          type="url"
+          value="https://jt4n4ztyd9-maker.github.io/SecretGameForYou/"
+          placeholder="Paste your GitHub Pages link here..."
+          class="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-rose-300/30 text-xs sm:text-sm text-white placeholder-rose-300/40 focus:outline-none focus:border-rose-400"
+        />
+      </div>
+
+      <!-- QR Code Canvas Box -->
+      <div class="flex flex-col items-center justify-center p-4 rounded-2xl bg-white shadow-inner mx-auto w-fit">
+        <div id="qrcode-container"></div>
+      </div>
+
+      <p class="text-[11px] text-rose-200/75 italic">
+        Tip: Open her phone camera & point it here ♥
+      </p>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * =========================================================================
+     * 1. WEB AUDIO API ROMANTIC CHIME SYNTHESIZER
+     * =========================================================================
+     */
+    class RomanticAudio {
+      constructor() {
+        this.enabled = true;
+        this.ctx = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playPop(freq = 523.25) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.25, now + 0.12);
+
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } catch (e) {}
+      }
+
+      playCelebration() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          // Warm romantic major-9th arpeggio: C5, E5, G5, B5, D6
+          const notes = [523.25, 659.25, 783.99, 987.77, 1174.66];
+          notes.forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            const t = now + i * 0.09;
+            osc.frequency.setValueAtTime(freq, t);
+
+            gain.gain.setValueAtTime(0.001, t);
+            gain.gain.linearRampToValueAtTime(0.09, t + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.0008, t + 1.1);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 1.15);
+          });
+        } catch (e) {}
+      }
+    }
+
+    const audio = new RomanticAudio();
+
+    /**
+     * =========================================================================
+     * 2. FLOATING HEARTS & CONFETTI CELEBRATION ENGINE
+     * =========================================================================
+     */
+    function spawnBackgroundHeart() {
+      const heart = document.createElement('div');
+      heart.className = 'floating-heart text-rose-300/40';
+      const symbols = ['♥', '♡', '✨', '🌸'];
+      heart.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+      heart.style.left = `${Math.random() * 100}vw`;
+      heart.style.fontSize = `${12 + Math.random() * 14}px`;
+      const duration = 7 + Math.random() * 7;
+      heart.style.animationDuration = `${duration}s`;
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), duration * 1000);
+    }
+
+    setInterval(spawnBackgroundHeart, 1300);
+
+    // Confetti Burst on Canvas
+    const confettiCanvas = document.getElementById('confetti-canvas');
+    const cCtx = confettiCanvas.getContext('2d');
+    let confettiParticles = [];
+    let confettiAnimating = false;
+
+    function resizeConfetti() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeConfetti);
+    resizeConfetti();
+
+    function launchConfetti() {
+      const colors = ['#fb7185', '#f472b6', '#c084fc', '#fde047', '#fda4af', '#ffffff'];
+      confettiParticles = [];
+      for (let i = 0; i < 110; i++) {
+        confettiParticles.push({
+          x: confettiCanvas.width / 2 + (Math.random() - 0.5) * 140,
+          y: confettiCanvas.height * 0.55,
+          vx: (Math.random() - 0.5) * 14,
+          vy: -6 - Math.random() * 11,
+          size: 5 + Math.random() * 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          vRot: (Math.random() - 0.5) * 10,
+          isHeart: Math.random() > 0.55
+        });
+      }
+      if (!confettiAnimating) {
+        confettiAnimating = true;
+        animateConfetti();
+      }
+    }
+
+    function animateConfetti() {
+      cCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      confettiParticles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.28; // gentle gravity
+        p.vx *= 0.99;
+        p.rotation += p.vRot;
+
+        cCtx.save();
+        cCtx.translate(p.x, p.y);
+        cCtx.rotate((p.rotation * Math.PI) / 180);
+        cCtx.fillStyle = p.color;
+
+        if (p.isHeart) {
+          cCtx.font = `${p.size * 2}px sans-serif`;
+          cCtx.fillText('♥', -p.size / 2, p.size / 2);
+        } else {
+          cCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65);
+        }
+        cCtx.restore();
+      });
+
+      confettiParticles = confettiParticles.filter((p) => p.y < confettiCanvas.height + 40);
+      if (confettiParticles.length > 0) {
+        requestAnimationFrame(animateConfetti);
+      } else {
+        confettiAnimating = false;
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 3. TIC-TAC-TOE GAME LOGIC & PLAYFUL AI
+     * =========================================================================
+     */
+    const WIN_PATTERNS = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+      [0, 3, 6], [1, 4, 7], [2, 5, 8], // Cols
+      [0, 4, 8], [2, 4, 6]             // Diagonals
+    ];
+
+    const TOKEN_MODES = [
+      { you: '♥', me: '★', label: '♥ / ★' },
+      { you: 'X', me: 'O', label: 'X / O' }
+    ];
+
+    const PLAYER_BANTER = [
+      "Ooh, bold move! Let me think... 🤔",
+      "You're pretty good at this! My turn ✨",
+      "Trying to corner me already? Cute 😉",
+      "Hmm, interesting strategy...",
+      "Okay, watch this move! 💫"
+    ];
+
+    const AI_BANTER = [
+      "Your move, cutie! 💕",
+      "Right back to you ✨",
+      "Don't hold back now 😉",
+      "Your turn! Choose wisely 🌸"
+    ];
+
+    const state = {
+      board: Array(9).fill(null),
+      isPlayerTurn: true,
+      gameOver: false,
+      scores: { you: 0, me: 0 },
+      tokenModeIdx: 0,
+      selectedDate: 'We will go eat and Netflix and chill 🍜🎬❤️',
+      lastOutcome: 'win',
+      dodgeCount: 0
+    };
+
+    const boardEl = document.getElementById('game-board');
+    const banterEl = document.getElementById('banter-text');
+
+    function setBanter(text) {
+      banterEl.style.opacity = '0';
+      setTimeout(() => {
+        banterEl.textContent = text;
+        banterEl.style.opacity = '1';
+      }, 130);
+    }
+
+    function updateTurnBadges() {
+      const badgeYou = document.getElementById('badge-you');
+      const badgeMe = document.getElementById('badge-me');
+      if (state.isPlayerTurn) {
+        badgeYou.className = 'flex-1 py-2 px-3 rounded-2xl bg-rose-500/25 border border-rose-400/60 flex items-center justify-between transition-all shadow-sm';
+        badgeMe.className = 'flex-1 py-2 px-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between transition-all opacity-70';
+      } else {
+        badgeYou.className = 'flex-1 py-2 px-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between transition-all opacity-70';
+        badgeMe.className = 'flex-1 py-2 px-3 rounded-2xl bg-purple-500/25 border border-purple-400/60 flex items-center justify-between transition-all shadow-sm';
+      }
+    }
+
+    function renderBoard(winningIndices = []) {
+      const tokens = TOKEN_MODES[state.tokenModeIdx];
+      document.getElementById('label-you-sym').textContent = tokens.you;
+      document.getElementById('label-me-sym').textContent = tokens.me;
+      document.getElementById('token-preview').textContent = tokens.label;
+
+      boardEl.innerHTML = '';
+      state.board.forEach((cell, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        const isWin = winningIndices.includes(idx);
+        btn.className = `board-cell rounded-2xl flex items-center justify-center text-3xl sm:text-4xl font-bold cursor-pointer ${isWin ? 'winning-cell' : ''}`;
+        btn.disabled = Boolean(cell) || !state.isPlayerTurn || state.gameOver;
+
+        if (cell === 'YOU') {
+          btn.innerHTML = `<span class="symbol-enter text-rose-400 drop-shadow-[0_0_12px_rgba(251,113,133,0.65)]">${tokens.you}</span>`;
+        } else if (cell === 'ME') {
+          btn.innerHTML = `<span class="symbol-enter text-purple-300 drop-shadow-[0_0_12px_rgba(192,132,252,0.65)]">${tokens.me}</span>`;
+        }
+
+        btn.addEventListener('click', () => handlePlayerMove(idx));
+        boardEl.appendChild(btn);
+      });
+    }
+
+    function checkWinner(board) {
+      for (const pattern of WIN_PATTERNS) {
+        const [a, b, c] = pattern;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          return { winner: board[a], pattern };
+        }
+      }
+      if (board.every((cell) => cell !== null)) {
+        return { winner: 'DRAW', pattern: [] };
+      }
+      return null;
+    }
+
+    function handlePlayerMove(idx) {
+      if (state.gameOver || !state.isPlayerTurn || state.board[idx]) return;
+
+      audio.playPop(587.33); // D5
+      state.board[idx] = 'YOU';
+      state.isPlayerTurn = false;
+      renderBoard();
+      updateTurnBadges();
+
+      const result = checkWinner(state.board);
+      if (result) {
+        finishRound(result);
+        return;
+      }
+
+      const randomBanter = PLAYER_BANTER[Math.floor(Math.random() * PLAYER_BANTER.length)];
+      setBanter(randomBanter);
+
+      setTimeout(makeAIMove, 620);
+    }
+
+    function findBestMove(board, mark) {
+      for (const [a, b, c] of WIN_PATTERNS) {
+        const line = [board[a], board[b], board[c]];
+        if (line.filter((v) => v === mark).length === 2 && line.includes(null)) {
+          if (board[a] === null) return a;
+          if (board[b] === null) return b;
+          if (board[c] === null) return c;
+        }
+      }
+      return -1;
+    }
+
+    function makeAIMove() {
+      if (state.gameOver) return;
+
+      const emptyIndices = state.board
+        .map((val, idx) => (val === null ? idx : null))
+        .filter((val) => val !== null);
+
+      if (emptyIndices.length === 0) return;
+
+      let chosenIdx = -1;
+
+      // Charming AI: 65% smart tactical play, 35% playful human-like opening so she can genuinely win too!
+      const playSmart = Math.random() < 0.65;
+      if (playSmart) {
+        // 1. Check if AI can win
+        chosenIdx = findBestMove(state.board, 'ME');
+        // 2. Block player's immediate win
+        if (chosenIdx === -1) {
+          chosenIdx = findBestMove(state.board, 'YOU');
+        }
+        // 3. Take center if free
+        if (chosenIdx === -1 && state.board[4] === null) {
+          chosenIdx = 4;
+        }
+      }
+
+      if (chosenIdx === -1) {
+        chosenIdx = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+      }
+
+      audio.playPop(440); // A4
+      state.board[chosenIdx] = 'ME';
+      renderBoard();
+
+      const result = checkWinner(state.board);
+      if (result) {
+        finishRound(result);
+        return;
+      }
+
+      state.isPlayerTurn = true;
+      updateTurnBadges();
+      const reply = AI_BANTER[Math.floor(Math.random() * AI_BANTER.length)];
+      setBanter(reply);
+      renderBoard();
+    }
+
+    function finishRound(result) {
+      state.gameOver = true;
+      renderBoard(result.pattern);
+
+      if (result.winner === 'YOU') {
+        state.scores.you += 1;
+        state.lastOutcome = 'win';
+        document.getElementById('score-you').textContent = state.scores.you;
+        setBanter("You won!! Unlocking your special reward... 🎉");
+      } else if (result.winner === 'ME') {
+        state.scores.me += 1;
+        state.lastOutcome = 'lose';
+        document.getElementById('score-me').textContent = state.scores.me;
+        setBanter("I won this round! Unlocking your reward anyway... 😉");
+      } else {
+        state.lastOutcome = 'draw';
+        setBanter("It's a tie! Which means we BOTH win... ✨");
+      }
+
+      setTimeout(() => openRewardModal(state.lastOutcome), 780);
+    }
+
+    function resetBoard() {
+      audio.playPop(523.25);
+      state.board = Array(9).fill(null);
+      state.isPlayerTurn = true;
+      state.gameOver = false;
+      updateTurnBadges();
+      setBanter("Fresh board! Your move first, cutie ✨");
+      renderBoard();
+    }
+
+    /**
+     * =========================================================================
+     * 4. REWARD MODAL, DODGING BUTTON & GOLDEN TICKET
+     * =========================================================================
+     */
+    const modal = document.getElementById('reward-modal');
+    const stepReveal = document.getElementById('modal-step-reveal');
+    const stepTicket = document.getElementById('modal-step-ticket');
+    const dodgeBtn = document.getElementById('btn-dodge-no');
+
+    function openRewardModal(outcome) {
+      audio.playCelebration();
+      launchConfetti();
+
+      // Reset modal to Step 1
+      stepReveal.classList.remove('hidden');
+      stepTicket.classList.add('hidden');
+      state.dodgeCount = 0;
+      dodgeBtn.style.transform = 'translate(0, 0) scale(1)';
+      dodgeBtn.className = 'w-full py-3 px-6 rounded-2xl bg-rose-500/15 hover:bg-rose-500/25 border-2 border-rose-300/45 text-sm sm:text-base font-semibold text-rose-100 shadow-lg shadow-rose-950/40 transition-all duration-150 cursor-pointer';
+      dodgeBtn.textContent = "No, I'm busy 🙈";
+      dodgeBtn.onclick = null;
+
+      const pill = document.getElementById('outcome-pill');
+      const subtext = document.getElementById('outcome-subtext');
+      const ticketTag = document.getElementById('ticket-result-tag');
+
+      if (outcome === 'win') {
+        pill.textContent = '🏆 You Won the Match!';
+        subtext.textContent = 'You beat me fair and square! And as the winner...';
+        ticketTag.textContent = 'Match Champion';
+      } else if (outcome === 'lose') {
+        pill.textContent = '😉 Nice Try, Cutie!';
+        subtext.textContent = "Okay, I won the game—good thing there's an even better consolation prize...";
+        ticketTag.textContent = 'VIP Consolation';
+      } else {
+        pill.textContent = '✨ Great Minds Think Alike!';
+        subtext.textContent = "It's a tie! Which officially means we both win—so...";
+        ticketTag.textContent = 'Co-Champion';
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeRewardModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Playful dodging "No, I'm busy" trap button
+    function dodgeNoButton() {
+      audio.playPop(660);
+      state.dodgeCount += 1;
+      const phrases = [
+        "Are you sure?! 🥺",
+        "Nice try, too slow! 😜",
+        "Error 404: 'No' not found! 🚫",
+        "Resistance is futile 💕",
+        "Okay fine, I'll go! 🥰"
+      ];
+
+      if (state.dodgeCount >= 5) {
+        dodgeBtn.style.transform = 'translate(0, 0) scale(1)';
+        dodgeBtn.className = 'btn-romantic w-full py-3.5 px-6 rounded-2xl text-sm sm:text-base font-bold text-white tracking-wide transition-all duration-200 cursor-pointer';
+        dodgeBtn.textContent = "Okay fine, I'll go! 🥰";
+        dodgeBtn.onclick = acceptReward;
+        return;
+      }
+
+      const maxOffsetX = 75;
+      const maxOffsetY = 26;
+      const randX = (Math.random() * 2 - 1) * maxOffsetX;
+      const randY = (Math.random() * 2 - 1) * maxOffsetY;
+      const shrinkScale = Math.max(0.84, 1 - state.dodgeCount * 0.035);
+      dodgeBtn.style.transform = `translate(${randX}px, ${randY}px) scale(${shrinkScale})`;
+      dodgeBtn.textContent = phrases[Math.min(state.dodgeCount - 1, phrases.length - 1)];
+    }
+
+    dodgeBtn.addEventListener('mouseenter', dodgeNoButton);
+    dodgeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (state.dodgeCount >= 5) {
+        acceptReward();
+      } else {
+        dodgeNoButton();
+      }
+    });
+
+    function acceptReward() {
+      audio.playCelebration();
+      launchConfetti();
+      document.getElementById('ticket-vibe').textContent = 'Eat + Netflix & Chill 🍜🎬';
+      stepReveal.classList.add('hidden');
+      stepTicket.classList.remove('hidden');
+    }
+
+    document.getElementById('btn-accept-reward').addEventListener('click', acceptReward);
+
+    // Copy Date Pass to Clipboard
+    document.getElementById('btn-copy-ticket').addEventListener('click', () => {
+      audio.playPop(700);
+      const text = [
+        `🎟️ VIP DATE PASS UNLOCKED ❤️`,
+        `Reward: Go on a date with you!`,
+        `Plan: We will go eat and Netflix and chill 🍜🎬❤️`,
+        `Status: Officially Accepted 💖`
+      ].join('\n');
+
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        const toast = document.getElementById('toast');
+        toast.classList.remove('opacity-0', 'translate-y-2');
+        toast.classList.add('opacity-100', 'translate-y-0');
+        setTimeout(() => {
+          toast.classList.add('opacity-0', 'translate-y-2');
+          toast.classList.remove('opacity-100', 'translate-y-0');
+        }, 2500);
+      } catch (err) {}
+      document.body.removeChild(ta);
+    });
+
+    // Header & Modal Controls
+    document.getElementById('btn-reset').addEventListener('click', resetBoard);
+    document.getElementById('btn-close-modal').addEventListener('click', () => {
+      closeRewardModal();
+      resetBoard();
+    });
+    document.getElementById('btn-play-again-ticket').addEventListener('click', () => {
+      closeRewardModal();
+      resetBoard();
+    });
+
+    document.getElementById('btn-peek-reward').addEventListener('click', () => {
+      setBanter("Finish the round first! Win or lose, you'll see 😉");
+      audio.playPop(540);
+    });
+
+    document.getElementById('btn-symbol-toggle').addEventListener('click', () => {
+      audio.playPop(620);
+      state.tokenModeIdx = (state.tokenModeIdx + 1) % TOKEN_MODES.length;
+      renderBoard();
+    });
+
+    // =========================================================================
+    // 5. QR CODE GENERATOR MODAL LOGIC
+    // =========================================================================
+    const qrModal = document.getElementById('qr-modal');
+    const qrInput = document.getElementById('qr-url-input');
+    const qrContainer = document.getElementById('qrcode-container');
+
+    function renderQRCode(urlText) {
+      qrContainer.innerHTML = '';
+      const cleanUrl = (urlText || '').trim() || 'https://jt4n4ztyd9-maker.github.io/SecretGameForYou/';
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(qrContainer, {
+          text: cleanUrl,
+          width: 190,
+          height: 190,
+          colorDark: '#881337',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      }
+    }
+
+    document.getElementById('btn-open-qr').addEventListener('click', () => {
+      audio.playPop(640);
+      // Pre-fill with current URL if hosted on a real web link, otherwise default to GitHub Pages link
+      if (window.location.protocol.startsWith('http') && !window.location.hostname.includes('localhost')) {
+        qrInput.value = window.location.href;
+      }
+      renderQRCode(qrInput.value);
+      qrModal.classList.remove('hidden');
+      qrModal.classList.add('flex');
+    });
+
+    document.getElementById('btn-close-qr').addEventListener('click', () => {
+      qrModal.classList.add('hidden');
+      qrModal.classList.remove('flex');
+    });
+
+    qrInput.addEventListener('input', (e) => {
+      renderQRCode(e.target.value);
+    });
+
+    document.getElementById('btn-sound').addEventListener('click', () => {
+      audio.enabled = !audio.enabled;
+      const icon = document.getElementById('sound-icon');
+      if (audio.enabled) {
+        audio.playPop(600);
+        icon.innerHTML = `
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          </svg>
+        `;
+      } else {
+        icon.innerHTML = `
+          <svg class="w-4 h-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+          </svg>
+        `;
+      }
+    });
+
+    // =========================================================================
+    // 6. ROMANTIC 4-DIGIT PASSCODE GATE LOGIC ("1104")
+    // =========================================================================
+    const SECRET_PASSCODE = '1104';
+    let enteredPasscode = '';
+    let gateUnlocked = false;
+
+    const passcodeGate = document.getElementById('passcode-gate');
+    const passcodeCard = document.getElementById('passcode-card');
+    const passcodeDots = document.querySelectorAll('.pass-dot');
+    const passcodeFeedback = document.getElementById('passcode-feedback');
+
+    function updatePasscodeDots() {
+      passcodeDots.forEach((dot, index) => {
+        if (index < enteredPasscode.length) {
+          dot.className = 'pass-dot w-4 h-4 rounded-full border-2 border-rose-300 bg-rose-400 scale-110 shadow-[0_0_12px_rgba(251,113,133,0.8)] transition-all duration-200';
+        } else {
+          dot.className = 'pass-dot w-4 h-4 rounded-full border-2 border-rose-300/50 bg-transparent transition-all duration-200';
+        }
+      });
+    }
+
+    function handlePasscodeDigit(digit) {
+      if (gateUnlocked || enteredPasscode.length >= 4) return;
+      audio.playPop(560 + enteredPasscode.length * 60);
+      enteredPasscode += digit;
+      updatePasscodeDots();
+
+      if (enteredPasscode.length === 4) {
+        if (enteredPasscode === SECRET_PASSCODE) {
+          gateUnlocked = true;
+          passcodeFeedback.textContent = 'Unlocked! Welcome, cutie ♥';
+          passcodeFeedback.className = 'min-h-[20px] text-xs font-semibold text-emerald-300';
+          audio.playCelebration();
+          launchConfetti();
+          setTimeout(() => {
+            passcodeGate.style.opacity = '0';
+            setTimeout(() => {
+              passcodeGate.classList.add('hidden');
+            }, 480);
+          }, 380);
+        } else {
+          audio.playPop(240);
+          passcodeFeedback.textContent = 'Not quite! Think about a special date 💭';
+          passcodeFeedback.className = 'min-h-[20px] text-xs font-semibold text-amber-300';
+          passcodeCard.classList.remove('shake-gate');
+          void passcodeCard.offsetWidth;
+          passcodeCard.classList.add('shake-gate');
+          setTimeout(() => {
+            enteredPasscode = '';
+            updatePasscodeDots();
+          }, 420);
+        }
+      }
+    }
+
+    document.querySelectorAll('.keypad-btn[data-digit]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        handlePasscodeDigit(btn.getAttribute('data-digit'));
+      });
+    });
+
+    document.getElementById('btn-pass-back').addEventListener('click', () => {
+      if (gateUnlocked || enteredPasscode.length === 0) return;
+      audio.playPop(420);
+      enteredPasscode = enteredPasscode.slice(0, -1);
+      updatePasscodeDots();
+    });
+
+    document.getElementById('btn-pass-clear').addEventListener('click', () => {
+      if (gateUnlocked) return;
+      audio.playPop(380);
+      enteredPasscode = '';
+      updatePasscodeDots();
+    });
+
+    // Keyboard support for typing 4-digit passcode on desktop
+    window.addEventListener('keydown', (e) => {
+      if (gateUnlocked) return;
+      if (/^[0-9]$/.test(e.key)) {
+        handlePasscodeDigit(e.key);
+      } else if (e.key === 'Backspace') {
+        enteredPasscode = enteredPasscode.slice(0, -1);
+        updatePasscodeDots();
+      }
+    });
+
+    // Initialize Game on Load
+    window.onload = function () {
+      updateTurnBadges();
+      renderBoard();
+    };
+  </script>
+</body>
+</html>

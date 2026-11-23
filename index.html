@@ -367,34 +367,66 @@
         </div>
 
         <!-- Locked-In Date Plan Card -->
-        <div class="p-4 rounded-2xl bg-white/[0.06] border border-rose-300/30 shadow-inner space-y-1">
-          <div class="text-[10px] font-semibold uppercase tracking-widest text-rose-300/80">
-            The Official Plan
+        <!-- Interactive Official Plan Selector (Feels like picking 1, surprises with ALL 4 after tapping!) -->
+        <div class="p-4 rounded-2xl bg-white/[0.06] border border-rose-300/30 shadow-inner space-y-3 text-left">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-rose-300">
+              The Official Plan • Choose One Reward
+            </span>
           </div>
-          <div class="text-base sm:text-lg font-bold text-white">
-            We will go eat and Netflix and chill 🍜🎬❤️
-          </div>
-          <div class="text-[11px] text-rose-200/75">
-            Good food, cozy vibes, and zero stress!
+
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              data-plan-option="Dinner"
+              class="plan-option-btn px-2.5 py-2.5 rounded-xl bg-white/5 hover:bg-rose-500/20 border border-rose-300/25 text-xs font-semibold text-rose-100 transition text-left flex items-center gap-1.5 min-w-0 cursor-pointer"
+            >
+              <span class="shrink-0">🍽️</span>
+              <span class="leading-tight">Dinner</span>
+            </button>
+            <button
+              type="button"
+              data-plan-option="Spend time with me"
+              class="plan-option-btn px-2.5 py-2.5 rounded-xl bg-white/5 hover:bg-rose-500/20 border border-rose-300/25 text-xs font-semibold text-rose-100 transition text-left flex items-center gap-1.5 min-w-0 cursor-pointer"
+            >
+              <span class="shrink-0">💕</span>
+              <span class="leading-tight">Spend time with me</span>
+            </button>
+            <button
+              type="button"
+              data-plan-option="Massage"
+              class="plan-option-btn px-2.5 py-2.5 rounded-xl bg-white/5 hover:bg-rose-500/20 border border-rose-300/25 text-xs font-semibold text-rose-100 transition text-left flex items-center gap-1.5 min-w-0 cursor-pointer"
+            >
+              <span class="shrink-0">💆‍♀️</span>
+              <span class="leading-tight">Massage</span>
+            </button>
+            <button
+              type="button"
+              data-plan-option="Watson Pink"
+              class="plan-option-btn px-2.5 py-2.5 rounded-xl bg-white/5 hover:bg-rose-500/20 border border-rose-300/25 text-xs font-semibold text-rose-100 transition text-left flex items-center gap-1.5 min-w-0 cursor-pointer"
+            >
+              <span class="shrink-0">🛍️</span>
+              <span class="leading-tight">Watson Pink</span>
+            </button>
           </div>
         </div>
 
-        <!-- Action Buttons: Accept Reward + Prominent Playful Dodging Trap Button -->
-        <div class="pt-2 space-y-3 relative">
-          <button id="btn-accept-reward" class="btn-romantic w-full py-3.5 px-6 rounded-2xl text-sm sm:text-base font-bold text-white tracking-wide cursor-pointer">
+        <!-- Action Buttons: Accept Reward + Compact Playful Dodging Trap Button -->
+        <div class="pt-1.5 space-y-2.5 relative flex flex-col items-center">
+          <button id="btn-accept-reward" class="btn-romantic w-4/5 max-w-[260px] py-2.5 px-5 rounded-xl text-xs sm:text-sm font-bold text-white tracking-wide cursor-pointer">
             Accept Reward 💖
           </button>
 
-          <div class="min-h-[54px] flex items-center justify-center relative">
-            <button id="btn-dodge-no" type="button" class="w-full py-3 px-6 rounded-2xl bg-rose-500/15 hover:bg-rose-500/25 border-2 border-rose-300/45 text-sm sm:text-base font-semibold text-rose-100 shadow-lg shadow-rose-950/40 transition-all duration-150 cursor-pointer">
+          <div class="min-h-[44px] w-full flex items-center justify-center relative">
+            <button id="btn-dodge-no" type="button" class="w-4/5 max-w-[260px] py-2 px-4 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-300/45 text-xs font-semibold text-rose-100 shadow-md shadow-rose-950/40 transition-all duration-150 cursor-pointer">
               No, I'm busy 🙈
             </button>
           </div>
         </div>
       </div>
 
-      <!-- STEP 2: GOLDEN DATE TICKET CONFIRMATION -->
-      <div id="modal-step-ticket" class="hidden space-y-5 text-center">
+      <!-- STEP 2: GOLDEN DATE TICKET CONFIRMATION & PLOT TWIST REVEAL -->
+      <div id="modal-step-ticket" class="hidden space-y-4 text-center">
         <div class="space-y-1">
           <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/35">
             ✓ Reward Claimed!
@@ -407,9 +439,22 @@
           </p>
         </div>
 
+        <!-- Plot Twist Surprise Box (Shown after she picks a reward & accepts) -->
+        <div class="p-4 rounded-2xl bg-gradient-to-r from-rose-500/25 via-pink-500/20 to-amber-500/20 border border-amber-300/45 text-left space-y-1.5">
+          <div id="ticket-plot-twist-title" class="text-xs font-bold text-amber-200">
+            🎉 You picked "Dinner" — Plot Twist!
+          </div>
+          <p class="text-xs font-bold text-white leading-relaxed">
+            You are so lucky! You have been rewarded with all of it, claim your reward as soon as possible and discuss with the owner when the date of expiry. 🎁❤️
+          </p>
+          <p class="text-[11px] font-semibold text-rose-200">
+            Included: Dinner + Spend time with me + Massage + Watson pink ✨
+          </p>
+        </div>
+
         <!-- Golden Ticket Card -->
-        <div class="p-5 rounded-2xl bg-gradient-to-br from-amber-500/20 via-rose-500/20 to-purple-600/25 border border-amber-300/40 text-left space-y-3 relative overflow-hidden">
-          <div class="flex items-center justify-between border-b border-white/15 pb-2.5">
+        <div class="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-rose-500/20 to-purple-600/25 border border-amber-300/40 text-left space-y-2.5 relative overflow-hidden">
+          <div class="flex items-center justify-between border-b border-white/15 pb-2">
             <span class="text-[11px] font-bold uppercase tracking-widest text-amber-200">
               VIP DATE PASS ♥
             </span>
@@ -418,21 +463,14 @@
             </span>
           </div>
 
-          <div class="space-y-1">
-            <div class="text-[11px] text-rose-200/70">Reward Unlocked:</div>
-            <div class="font-serif-romantic text-lg font-bold text-white">
-              One Unforgettable Date With Me ❤️
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2 pt-1 text-xs">
+          <div class="grid grid-cols-2 gap-2 text-xs">
             <div class="p-2.5 rounded-xl bg-black/25">
-              <div class="text-[10px] text-rose-200/60">Confirmed Plan</div>
-              <div id="ticket-vibe" class="font-semibold text-rose-100 mt-0.5">Eat + Netflix & Chill 🍜🎬</div>
+              <div class="text-[10px] text-rose-200/60">All Rewards Unlocked</div>
+              <div id="ticket-vibe" class="font-semibold text-rose-100 mt-0.5 leading-tight">Dinner + Spend time with me + Massage + Watson pink</div>
             </div>
             <div class="p-2.5 rounded-xl bg-black/25">
-              <div class="text-[10px] text-rose-200/60">Cost</div>
-              <div class="font-semibold text-emerald-300 mt-0.5">100% On Me ✨</div>
+              <div class="text-[10px] text-rose-200/60">Claim Window</div>
+              <div id="ticket-claim-note" class="font-semibold text-amber-300 mt-0.5 leading-tight">ASAP • Everything Included ✨</div>
             </div>
           </div>
         </div>
@@ -689,8 +727,12 @@
       "Your move, cutie! 💕",
       "Right back to you ✨",
       "Don't hold back now 😉",
-      "Your turn! Choose wisely 🌸"
+      "Your turn to shine! 🌟",
+      "Let's see your next move 💫"
     ];
+
+    const ALL_REWARDS_LIST = ['Dinner', 'Spend time with me', 'Massage', 'Watson Pink'];
+    const ALL_REWARDS_TEXT = ALL_REWARDS_LIST.join(' + ');
 
     const state = {
       board: Array(9).fill(null),
@@ -698,7 +740,7 @@
       gameOver: false,
       scores: { you: 0, me: 0 },
       tokenModeIdx: 0,
-      selectedDate: 'We will go eat and Netflix and chill 🍜🎬❤️',
+      selectedPlanChoice: null,
       lastOutcome: 'win',
       dodgeCount: 0
     };
@@ -885,17 +927,43 @@
     const stepReveal = document.getElementById('modal-step-reveal');
     const stepTicket = document.getElementById('modal-step-ticket');
     const dodgeBtn = document.getElementById('btn-dodge-no');
+    const planButtons = document.querySelectorAll('.plan-option-btn');
+
+    function updatePlanSelectionUI(chosenOption, playEffect = false) {
+      state.selectedPlanChoice = chosenOption;
+
+      planButtons.forEach((btn) => {
+        const isSelected = chosenOption && btn.getAttribute('data-plan-option') === chosenOption;
+        if (isSelected) {
+          btn.className = 'plan-option-btn px-2.5 py-2.5 rounded-xl bg-gradient-to-r from-rose-500/35 to-pink-500/35 border-2 border-amber-300 text-xs font-bold text-white shadow-[0_0_18px_rgba(251,113,133,0.45)] scale-[1.02] transition text-left flex items-center gap-1.5 min-w-0 cursor-pointer';
+        } else {
+          btn.className = 'plan-option-btn px-2.5 py-2.5 rounded-xl bg-white/10 hover:bg-rose-500/20 border border-rose-300/30 text-xs font-semibold text-rose-100 transition text-left flex items-center gap-1.5 min-w-0 cursor-pointer';
+        }
+      });
+
+      if (chosenOption && playEffect) {
+        audio.playPop(640);
+      }
+    }
+
+    planButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const chosen = btn.getAttribute('data-plan-option');
+        updatePlanSelectionUI(chosen, true);
+      });
+    });
 
     function openRewardModal(outcome) {
       audio.playCelebration();
       launchConfetti();
 
-      // Reset modal to Step 1
+      // Reset modal to Step 1 with no option pre-selected so it feels like a single-choice pick
       stepReveal.classList.remove('hidden');
       stepTicket.classList.add('hidden');
+      updatePlanSelectionUI(null, false);
       state.dodgeCount = 0;
       dodgeBtn.style.transform = 'translate(0, 0) scale(1)';
-      dodgeBtn.className = 'w-full py-3 px-6 rounded-2xl bg-rose-500/15 hover:bg-rose-500/25 border-2 border-rose-300/45 text-sm sm:text-base font-semibold text-rose-100 shadow-lg shadow-rose-950/40 transition-all duration-150 cursor-pointer';
+      dodgeBtn.className = 'w-4/5 max-w-[260px] py-2 px-4 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-300/45 text-xs font-semibold text-rose-100 shadow-md shadow-rose-950/40 transition-all duration-150 cursor-pointer';
       dodgeBtn.textContent = "No, I'm busy 🙈";
       dodgeBtn.onclick = null;
 
@@ -940,17 +1008,17 @@
 
       if (state.dodgeCount >= 5) {
         dodgeBtn.style.transform = 'translate(0, 0) scale(1)';
-        dodgeBtn.className = 'btn-romantic w-full py-3.5 px-6 rounded-2xl text-sm sm:text-base font-bold text-white tracking-wide transition-all duration-200 cursor-pointer';
+        dodgeBtn.className = 'btn-romantic w-4/5 max-w-[260px] py-2.5 px-5 rounded-xl text-xs sm:text-sm font-bold text-white tracking-wide transition-all duration-200 cursor-pointer';
         dodgeBtn.textContent = "Okay fine, I'll go! 🥰";
         dodgeBtn.onclick = acceptReward;
         return;
       }
 
-      const maxOffsetX = 75;
-      const maxOffsetY = 26;
+      const maxOffsetX = 65;
+      const maxOffsetY = 22;
       const randX = (Math.random() * 2 - 1) * maxOffsetX;
       const randY = (Math.random() * 2 - 1) * maxOffsetY;
-      const shrinkScale = Math.max(0.84, 1 - state.dodgeCount * 0.035);
+      const shrinkScale = Math.max(0.86, 1 - state.dodgeCount * 0.03);
       dodgeBtn.style.transform = `translate(${randX}px, ${randY}px) scale(${shrinkScale})`;
       dodgeBtn.textContent = phrases[Math.min(state.dodgeCount - 1, phrases.length - 1)];
     }
@@ -966,9 +1034,15 @@
     });
 
     function acceptReward() {
+      const picked = state.selectedPlanChoice || 'Dinner';
+      if (!state.selectedPlanChoice) {
+        updatePlanSelectionUI(picked, false);
+      }
       audio.playCelebration();
       launchConfetti();
-      document.getElementById('ticket-vibe').textContent = 'Eat + Netflix & Chill 🍜🎬';
+      document.getElementById('ticket-plot-twist-title').textContent = `🎉 You picked "${picked}" — Plot Twist!`;
+      document.getElementById('ticket-vibe').textContent = ALL_REWARDS_TEXT;
+      document.getElementById('ticket-claim-note').textContent = `Claim ASAP • Discuss expiry with owner ⚡`;
       stepReveal.classList.add('hidden');
       stepTicket.classList.remove('hidden');
     }
@@ -981,7 +1055,9 @@
       const text = [
         `🎟️ VIP DATE PASS UNLOCKED ❤️`,
         `Reward: Go on a date with you!`,
-        `Plan: We will go eat and Netflix and chill 🍜🎬❤️`,
+        `Chosen Highlight: ${state.selectedPlanChoice || 'All of it'}`,
+        `All Rewards Unlocked: ${ALL_REWARDS_TEXT} 🎁`,
+        `Note: Claim your reward as soon as possible and discuss with the owner when the date of expiry! ⚡`,
         `Status: Officially Accepted 💖`
       ].join('\n');
 
